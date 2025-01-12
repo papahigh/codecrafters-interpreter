@@ -53,6 +53,8 @@ public class Scanner {
                     while (peek() != '\n' && !isEOF()) advance();
                 } else addToken(SLASH);
             }
+            case ' ', '\r', '\t' -> {}
+            case '\n' -> line++;
             default -> doctor.error(line, "Unexpected character: %c".formatted(c));
         }
     }
