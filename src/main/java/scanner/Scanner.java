@@ -48,24 +48,34 @@ public class Scanner {
             case '=' -> addToken(match('=') ? EQUAL_EQUAL : EQUAL);
             case '<' -> addToken(match('=') ? LESS_EQUAL : LESS);
             case '>' -> addToken(match('=') ? GREATER_EQUAL : GREATER);
-            case '0','1','2','3','4','5','6','7','8','9' -> addNumber();
+            case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> addNumber();
             case '"' -> addString();
             case '/' -> {
                 if (match('/')) {
                     while (peek() != '\n' && !isEOF()) advance();
                 } else addToken(SLASH);
             }
-            case ' ', '\r', '\t' -> {}
+            case ' ', '\r', '\t' -> {
+            }
             case '\n' -> line++;
-            default -> doctor.error(line, "Unexpected character: %c".formatted(c));
+            default -> {
+                if (isAlpha(c)) addIdentifier();
+                else doctor.error(line, "Unexpected character: %c".formatted(c));
+            }
         }
     }
 
+    private void addIdentifier() {
+        while (isAlphanumeric(peek())) advance();
+        var token = source.substring(start, current);
+        addToken(TokenTypes.identifier(token));
+    }
+
     private void addNumber() {
-        while (Character.isDigit(peek())) advance();
-        if (peek() == '.' && Character.isDigit(peekNext())) {
+        while (isDigit(peek())) advance();
+        if (peek() == '.' && isDigit(peekNext())) {
             do advance();
-            while (Character.isDigit(peek()));
+            while (isDigit(peek()));
         }
 
         addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
@@ -118,5 +128,17 @@ public class Scanner {
 
     private boolean isEOF() {
         return current >= source.length();
+    }
+
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+    }
+
+    private boolean isAlphanumeric(char c) {
+        return isDigit(c) || isAlpha(c);
     }
 }
