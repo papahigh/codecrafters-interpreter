@@ -53,8 +53,7 @@ public class Scanner {
             case '/' -> {
                 if (match('/')) {
                     while (peek() != '\n' && !isEOF()) advance();
-                }
-                if (match('*')) {
+                } else if (match('*')) {
                     while (!(peek() == '*' && peekNext() == '/')) {
                         if (isEOF()) {
                             doctor.error(line, "Unterminated block comment.");
