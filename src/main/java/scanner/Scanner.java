@@ -48,6 +48,7 @@ public class Scanner {
             case '=' -> addToken(match('=') ? EQUAL_EQUAL : EQUAL);
             case '<' -> addToken(match('=') ? LESS_EQUAL : LESS);
             case '>' -> addToken(match('=') ? GREATER_EQUAL : GREATER);
+            case '"' -> addString();
             case '/' -> {
                 if (match('/')) {
                     while (peek() != '\n' && !isEOF()) advance();
@@ -56,6 +57,21 @@ public class Scanner {
             case ' ', '\r', '\t' -> {}
             case '\n' -> line++;
             default -> doctor.error(line, "Unexpected character: %c".formatted(c));
+        }
+    }
+
+    private void addString() {
+        while (peek() != '"' && !isEOF()) {
+            if (peek() == '\n') line++;
+            advance();
+        }
+
+        if (isEOF()) {
+            doctor.error(line, "Unterminated string.");
+        } else {
+            advance();
+            var value = source.substring(start + 1, current - 1);
+            addToken(STRING, value);
         }
     }
 
