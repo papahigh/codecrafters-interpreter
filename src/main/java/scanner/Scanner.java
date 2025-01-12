@@ -32,6 +32,8 @@ public class Scanner {
         switch (c) {
             case '(' -> addToken(LEFT_PAREN);
             case ')' -> addToken(RIGHT_PAREN);
+            case '{' -> addToken(LEFT_BRACE);
+            case '}' -> addToken(RIGHT_BRACE);
         }
     }
 
