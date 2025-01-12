@@ -48,6 +48,11 @@ public class Scanner {
             case '=' -> addToken(match('=') ? EQUAL_EQUAL : EQUAL);
             case '<' -> addToken(match('=') ? LESS_EQUAL : LESS);
             case '>' -> addToken(match('=') ? GREATER_EQUAL : GREATER);
+            case '/' -> {
+                if (match('/')) {
+                    while (peek() != '\n' && !isEOF()) advance();
+                } else addToken(SLASH);
+            }
             default -> doctor.error(line, "Unexpected character: %c".formatted(c));
         }
     }
@@ -70,6 +75,11 @@ public class Scanner {
         if (source.charAt(current) != expected) return false;
         current++;
         return true;
+    }
+
+    private char peek() {
+        if (isEOF()) return '\0';
+        return source.charAt(current);
     }
 
     private boolean isEOF() {
