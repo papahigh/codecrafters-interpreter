@@ -48,6 +48,7 @@ public class Scanner {
             case '=' -> addToken(match('=') ? EQUAL_EQUAL : EQUAL);
             case '<' -> addToken(match('=') ? LESS_EQUAL : LESS);
             case '>' -> addToken(match('=') ? GREATER_EQUAL : GREATER);
+            case '0','1','2','3','4','5','6','7','8','9' -> addNumber();
             case '"' -> addString();
             case '/' -> {
                 if (match('/')) {
@@ -58,6 +59,16 @@ public class Scanner {
             case '\n' -> line++;
             default -> doctor.error(line, "Unexpected character: %c".formatted(c));
         }
+    }
+
+    private void addNumber() {
+        while (Character.isDigit(peek())) advance();
+        if (peek() == '.' && Character.isDigit(peekNext())) {
+            do advance();
+            while (Character.isDigit(peek()));
+        }
+
+        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
 
     private void addString() {
@@ -98,6 +109,11 @@ public class Scanner {
     private char peek() {
         if (isEOF()) return '\0';
         return source.charAt(current);
+    }
+
+    private char peekNext() {
+        if (current + 1 >= source.length()) return '\0';
+        return source.charAt(current + 1);
     }
 
     private boolean isEOF() {
