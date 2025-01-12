@@ -1,3 +1,4 @@
+import doctor.Doctor;
 import scanner.Scanner;
 
 import java.io.IOException;
@@ -30,10 +31,15 @@ public class Main {
             System.exit(1);
         }
 
+        var diagnos = Doctor.console();
+        var scanner = new Scanner(fileContents, diagnos);
 
-        var scanner = new Scanner(fileContents);
         for (var token : scanner.scanTokens()) {
             System.out.println(token);
+        }
+
+        if (diagnos.hasErrors()) {
+            System.exit(65);
         }
     }
 }
