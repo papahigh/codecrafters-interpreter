@@ -44,6 +44,10 @@ public class Scanner {
             case '+' -> addToken(PLUS);
             case ';' -> addToken(SEMICOLON);
             case '*' -> addToken(STAR);
+            case '!' -> addToken(match('=') ? BANG_EQUAL : BANG);
+            case '=' -> addToken(match('=') ? EQUAL_EQUAL : EQUAL);
+            case '<' -> addToken(match('=') ? LESS_EQUAL : LESS);
+            case '>' -> addToken(match('=') ? GREATER_EQUAL : GREATER);
             default -> doctor.error(line, "Unexpected character: %c".formatted(c));
         }
     }
@@ -59,6 +63,13 @@ public class Scanner {
     private void addToken(TokenType type, Object literal) {
         var text = source.substring(start, current);
         tokens.add(new Token(type, text, literal, line));
+    }
+
+    private boolean match(char expected) {
+        if (isEOF()) return false;
+        if (source.charAt(current) != expected) return false;
+        current++;
+        return true;
     }
 
     private boolean isEOF() {
