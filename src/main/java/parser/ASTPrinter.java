@@ -1,10 +1,12 @@
 package parser;
 
 
+import static java.util.Optional.ofNullable;
+
 public class ASTPrinter implements Expression.Visitor<String> {
 
     public String print(Expression expression) {
-        return expression.accept(this);
+        return ofNullable(expression).map(it -> it.accept(this)).orElse("");
     }
 
     @Override
