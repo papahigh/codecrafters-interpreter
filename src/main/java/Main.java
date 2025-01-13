@@ -31,15 +31,13 @@ public class Main {
             System.exit(1);
         }
 
-        var diagnos = Doctor.console();
-        var scanner = new Scanner(fileContents, diagnos);
+        var doctor = Doctor.console();
+        var scanner = new Scanner(fileContents, doctor);
 
         for (var token : scanner.scanTokens()) {
             System.out.println(token);
         }
 
-        if (diagnos.hasErrors()) {
-            System.exit(65);
-        }
+        doctor.diagnostics();
     }
 }

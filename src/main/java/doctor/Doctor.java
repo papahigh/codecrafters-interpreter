@@ -2,7 +2,7 @@ package doctor;
 
 public sealed interface Doctor permits ConsoleDoctor {
 
-    boolean hasErrors();
+    void diagnostics();
 
     default void error(int line, String message) {
         report(line, "", message);
