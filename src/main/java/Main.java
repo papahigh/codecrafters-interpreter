@@ -1,4 +1,6 @@
 import doctor.Doctor;
+import parser.ASTPrinter;
+import parser.Parser;
 import scanner.Scanner;
 
 import java.io.IOException;
@@ -6,38 +8,55 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Main {
-    public static void main(String[] args) {
-        // You can use print statements as follows for debugging, they'll be visible when running tests.
-        System.err.println("Logs from your program will appear here!");
 
+    public static void main(String[] args) {
         if (args.length < 2) {
             System.err.println("Usage: ./your_program.sh tokenize <filename>");
             System.exit(1);
         }
 
         String command = args[0];
-        String filename = args[1];
+        String fileName = args[1];
 
-        if (!command.equals("tokenize")) {
-            System.err.println("Unknown command: " + command);
-            System.exit(1);
+        switch (command) {
+            case "tokenize" -> tokenize(content(fileName));
+            case "parse" -> parse(content(fileName));
+            default -> {
+                System.err.println("Unknown command: " + command);
+                System.exit(1);
+            }
         }
+    }
 
-        String fileContents = "";
-        try {
-            fileContents = Files.readString(Path.of(filename));
-        } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
-            System.exit(1);
-        }
-
+    private static void tokenize(String content) {
         var doctor = Doctor.console();
-        var scanner = new Scanner(fileContents, doctor);
+        var scanner = new Scanner(content, doctor);
 
         for (var token : scanner.scanTokens()) {
             System.out.println(token);
         }
 
         doctor.diagnostics();
+    }
+
+    private static void parse(String content) {
+        var doctor = Doctor.console();
+
+        var scanner = new Scanner(content, doctor);
+        var parser = new Parser(scanner.scanTokens(), doctor);
+
+        System.out.println(new ASTPrinter().print(parser.parse()));
+
+        doctor.diagnostics();
+    }
+
+    private static String content(String fileName) {
+        try {
+            return Files.readString(Path.of(fileName));
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+            System.exit(1);
+            return null;
+        }
     }
 }
