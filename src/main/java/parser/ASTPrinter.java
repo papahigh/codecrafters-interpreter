@@ -10,6 +10,11 @@ public class ASTPrinter implements Expression.Visitor<String> {
     }
 
     @Override
+    public String visit(Expression.TernaryExpression it) {
+        return parenthesize("ternary", it.condition(), it.thenBranch(), it.elseBranch());
+    }
+
+    @Override
     public String visit(Expression.BinaryExpression it) {
         return parenthesize(it.operator().lexeme(), it.left(), it.right());
     }

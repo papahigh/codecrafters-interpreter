@@ -31,7 +31,18 @@ public class Parser {
     }
 
     private Expression expression() {
-        return equality();
+        return ternary();
+    }
+
+    private Expression ternary() {
+        var expression = equality();
+        if (match(QUESTION)) {
+            var thenBranch = expression();
+            consume(COLON, "Expect ':' in ternary operator");
+            var elseBranch = expression();
+            expression = new Expression.TernaryExpression(expression, thenBranch, elseBranch);
+        }
+        return expression;
     }
 
     private Expression equality() {

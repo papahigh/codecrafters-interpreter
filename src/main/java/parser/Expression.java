@@ -7,10 +7,18 @@ public sealed interface Expression {
     <R> R accept(Visitor<R> visitor);
 
     interface Visitor<R> {
+        R visit(TernaryExpression it);
         R visit(BinaryExpression it);
         R visit(GroupingExpression it);
         R visit(LiteralExpression it);
         R visit(UnaryExpression it);
+    }
+
+    record TernaryExpression(Expression condition, Expression thenBranch, Expression elseBranch) implements Expression {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     record BinaryExpression(Expression left, Token operator, Expression right) implements Expression {

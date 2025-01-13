@@ -18,6 +18,7 @@ class Generate {
     private static void generateExpressions() throws IOException {
         var outputLocation = "src/main/java/parser/Expression.java";
         var expressionTypes = List.of(
+                entry("TernaryExpression", "Expression condition, Expression thenBranch, Expression elseBranch"),
                 entry("BinaryExpression", "Expression left, Token operator, Expression right"),
                 entry("GroupingExpression", "Expression expression"),
                 entry("LiteralExpression", "Object value"),
