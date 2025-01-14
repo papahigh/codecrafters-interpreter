@@ -36,12 +36,16 @@ public class Runtime implements Expression.Visitor<Object> {
         return switch (it.operator().type()) {
             case MINUS -> number(it.operator(), left) - number(it.operator(), right);
             case STAR -> number(it.operator(), left) * number(it.operator(), right);
-            case SLASH -> number(it.operator(), left) / number(it.operator(), right);
+            case SLASH -> {
+                var divisor = number(it.operator(), right);
+                if (divisor == 0.0) throw new RuntimeError(it.operator(), "Division by zero");
+                yield number(it.operator(), left) / divisor;
+            }
             case PLUS -> {
                 if (left instanceof Double d && right instanceof Double e) {
                     yield d + e;
-                } else if (left instanceof String s && right instanceof String t) {
-                    yield s + t;
+                } else if (left instanceof String || right instanceof String) {
+                    yield left.toString() + right.toString();
                 } else {
                     throw new RuntimeError(it.operator(), "Invalid operand types for '+'");
                 }
