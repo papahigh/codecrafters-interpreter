@@ -24,7 +24,7 @@ final class ConsoleDoctor implements Doctor {
     @Override
     public void runtimeError(RuntimeError error) {
         var content = "%s\n[line %s]".formatted(error.getMessage(), error.token.line());
-        System.out.println(content);
+        System.err.println(content);
         hasRuntimeError = true;
     }
 }
