@@ -41,7 +41,7 @@ class Generate {
                     }
                     """
                     .replace("// $VISITOR", renderVisitor(expressionTypes))
-                    .replace("// $EXPRESSIONS", renderTypes(expressionTypes));
+                    .replace("// $EXPRESSIONS", renderExpressions(expressionTypes));
             writer.write(code);
         }
     }
@@ -60,7 +60,7 @@ class Generate {
                 .indent(4);
     }
 
-    private static String renderTypes(List<Map.Entry<String, String>> expressionTypes) {
+    private static String renderExpressions(List<Map.Entry<String, String>> expressionTypes) {
         return expressionTypes.stream()
                 .map(it ->
                         """
