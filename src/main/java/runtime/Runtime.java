@@ -44,10 +44,10 @@ public class Runtime implements Expression.Visitor<Object> {
             case PLUS -> {
                 if (left instanceof Double d && right instanceof Double e) {
                     yield d + e;
-                } else if (left instanceof String || right instanceof String) {
-                    yield stringify(left) + stringify(right);
+                } else if (left instanceof String a && right instanceof String b) {
+                    yield a + b;
                 } else {
-                    throw new RuntimeError(it.operator(), "Invalid operand types for '+'");
+                    throw new RuntimeError(it.operator(), "Operands must be two numbers or two strings.");
                 }
             }
             case GREATER -> number(it.operator(), left) > number(it.operator(), right);
