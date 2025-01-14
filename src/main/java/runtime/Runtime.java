@@ -31,27 +31,27 @@ public class Runtime implements Expression.Visitor<Object> {
 
     @Override
     public Object visit(Expression.BinaryExpression it) {
-        var right = evaluate(it.right());
         var left = evaluate(it.left());
+        var right = evaluate(it.right());
         return switch (it.operator().type()) {
-            case MINUS -> number(it.operator(), right) - number(it.operator(), left);
-            case STAR -> number(it.operator(), right) * number(it.operator(), left);
-            case SLASH -> number(it.operator(), right) / number(it.operator(), left);
+            case MINUS -> number(it.operator(), left) - number(it.operator(), right);
+            case STAR -> number(it.operator(), left) * number(it.operator(), right);
+            case SLASH -> number(it.operator(), left) / number(it.operator(), right);
             case PLUS -> {
-                if (right instanceof Double d && left instanceof Double e) {
+                if (left instanceof Double d && right instanceof Double e) {
                     yield d + e;
-                } else if (right instanceof String s && left instanceof String t) {
+                } else if (left instanceof String s && right instanceof String t) {
                     yield s + t;
                 } else {
                     throw new RuntimeError(it.operator(), "Invalid operand types for '+'");
                 }
             }
-            case GREATER -> number(it.operator(), right) > number(it.operator(), left);
-            case GREATER_EQUAL -> number(it.operator(), right) >= number(it.operator(), left);
-            case LESS -> number(it.operator(), right) < number(it.operator(), left);
-            case LESS_EQUAL -> number(it.operator(), right) <= number(it.operator(), left);
-            case EQUAL_EQUAL -> isEqual(right, left);
-            case BANG_EQUAL -> !isEqual(right, left);
+            case GREATER -> number(it.operator(), left) > number(it.operator(), right);
+            case GREATER_EQUAL -> number(it.operator(), left) >= number(it.operator(), right);
+            case LESS -> number(it.operator(), left) < number(it.operator(), right);
+            case LESS_EQUAL -> number(it.operator(), left) <= number(it.operator(), right);
+            case EQUAL_EQUAL -> isEqual(left, right);
+            case BANG_EQUAL -> !isEqual(left, right);
             default -> null;
         };
     }
