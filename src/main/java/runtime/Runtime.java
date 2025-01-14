@@ -45,7 +45,7 @@ public class Runtime implements Expression.Visitor<Object> {
                 if (left instanceof Double d && right instanceof Double e) {
                     yield d + e;
                 } else if (left instanceof String || right instanceof String) {
-                    yield left.toString() + right.toString();
+                    yield stringify(left) + stringify(right);
                 } else {
                     throw new RuntimeError(it.operator(), "Invalid operand types for '+'");
                 }
