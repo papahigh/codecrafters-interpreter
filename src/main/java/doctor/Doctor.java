@@ -20,6 +20,8 @@ public sealed interface Doctor permits ConsoleDoctor {
         }
     }
 
+    void runtimeError(RuntimeError error);
+
     void report(int line, String where, String message);
 
     static Doctor console() {

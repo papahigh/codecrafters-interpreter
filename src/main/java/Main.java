@@ -1,6 +1,7 @@
 import doctor.Doctor;
 import parser.ASTPrinter;
 import parser.Parser;
+import runtime.Runtime;
 import scanner.Scanner;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class Main {
         switch (command) {
             case "tokenize" -> tokenize(content(fileName));
             case "parse" -> parse(content(fileName));
+            case "evaluate" -> evaluate(content(fileName));
             default -> {
                 System.err.println("Unknown command: " + command);
                 System.exit(1);
@@ -46,6 +48,18 @@ public class Main {
         var parser = new Parser(scanner.scanTokens(), doctor);
 
         System.out.println(new ASTPrinter().print(parser.parse()));
+
+        doctor.diagnostics();
+    }
+
+    private static void evaluate(String content) {
+        var doctor = Doctor.console();
+
+        var scanner = new Scanner(content, doctor);
+        var parser = new Parser(scanner.scanTokens(), doctor);
+        var runtime = new Runtime(doctor);
+
+        runtime.run(parser.parse());
 
         doctor.diagnostics();
     }
