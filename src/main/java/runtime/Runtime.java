@@ -71,7 +71,7 @@ public class Runtime implements Expression.Visitor<Object> {
         var right = evaluate(it.right());
         return switch (it.operator().type()) {
             case MINUS -> -number(it.operator(), right);
-            case BANG -> !(boolean) right;
+            case BANG -> !isTruthy(right);
             default -> null;
         };
     }
@@ -97,7 +97,13 @@ public class Runtime implements Expression.Visitor<Object> {
     }
 
     private boolean isTruthy(Object object) {
-        return object instanceof Boolean it ? it : false;
+        if (object == null) return false;
+        return switch (object) {
+            case Boolean it -> it;
+            case Double it -> it != 0.0;
+            case String it -> !it.isEmpty();
+            default -> false;
+        };
     }
 
     private boolean isEqual(Object a, Object b) {
