@@ -2,23 +2,15 @@
 # [EBNF](https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form) 
 
 
-
 ```
-expression     → literal
-               | unary
-               | binary
-               | grouping ;
+program        → statement* EOF ;
 
-literal        → NUMBER | STRING | "true" | "false" | "nil" ;
-grouping       → "(" expression ")" ;
-unary          → ( "-" | "!" ) expression ;
-binary         → expression operator expression ;
-operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
-               | "+"  | "-"  | "*" | "/" ;
-```
+statement      → exprStmt
+               | printStmt ;
 
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
 
-```
 expression     → ternary ;
 ternary        → equality ( "?" equality ":" equality)* ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;

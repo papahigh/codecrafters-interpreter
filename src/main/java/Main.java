@@ -23,6 +23,7 @@ public class Main {
             case "tokenize" -> tokenize(content(fileName));
             case "parse" -> parse(content(fileName));
             case "evaluate" -> evaluate(content(fileName));
+            case "run" -> run(content(fileName));
             default -> {
                 System.err.println("Unknown command: " + command);
                 System.exit(1);
@@ -47,7 +48,7 @@ public class Main {
         var scanner = new Scanner(content, doctor);
         var parser = new Parser(scanner.scanTokens(), doctor);
 
-        System.out.println(new ASTPrinter().print(parser.parse()));
+        System.out.println(new ASTPrinter().print(parser.parseExpression()));
 
         doctor.diagnostics();
     }
@@ -59,7 +60,19 @@ public class Main {
         var parser = new Parser(scanner.scanTokens(), doctor);
         var runtime = new Runtime(doctor);
 
-        runtime.run(parser.parse());
+        runtime.run(parser.parseExpression());
+
+        doctor.diagnostics();
+    }
+
+    private static void run(String content) {
+        var doctor = Doctor.console();
+
+        var scanner = new Scanner(content, doctor);
+        var parser = new Parser(scanner.scanTokens(), doctor);
+        var runtime = new Runtime(doctor);
+
+        runtime.run(parser.parseStatements());
 
         doctor.diagnostics();
     }

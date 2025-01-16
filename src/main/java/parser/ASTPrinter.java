@@ -3,7 +3,11 @@ package parser;
 
 import static java.util.Optional.ofNullable;
 
-public class ASTPrinter implements Expression.Visitor<String> {
+public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor<String> {
+
+    public String print(Statement statement) {
+        return ofNullable(statement).map(it -> it.accept(this)).orElse("");
+    }
 
     public String print(Expression expression) {
         return ofNullable(expression).map(it -> it.accept(this)).orElse("");
@@ -33,6 +37,16 @@ public class ASTPrinter implements Expression.Visitor<String> {
     @Override
     public String visit(Expression.UnaryExpression it) {
         return parenthesize(it.operator().lexeme(), it.right());
+    }
+
+    @Override
+    public String visit(Statement.ExpressionStatement it) {
+        return it.expression().accept(this);
+    }
+
+    @Override
+    public String visit(Statement.PrintStatement it) {
+        return parenthesize("print", it.expression());
     }
 
     private String parenthesize(String name, Expression... expression) {

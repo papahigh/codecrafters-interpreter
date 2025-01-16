@@ -3,10 +3,11 @@ package runtime;
 import doctor.Doctor;
 import doctor.RuntimeError;
 import parser.Expression;
+import parser.Statement;
 import scanner.Token;
 
 
-public class Runtime implements Expression.Visitor<Object> {
+public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
     private final Doctor doctor;
 
@@ -18,6 +19,15 @@ public class Runtime implements Expression.Visitor<Object> {
         try {
             var value = evaluate(expression);
             System.out.println(stringify(value));
+        } catch (RuntimeError error) {
+            doctor.runtimeError(error);
+        }
+    }
+
+    public void run(Iterable<Statement> statements) {
+        try {
+            for (var it : statements)
+                it.accept(this);
         } catch (RuntimeError error) {
             doctor.runtimeError(error);
         }
@@ -114,5 +124,18 @@ public class Runtime implements Expression.Visitor<Object> {
         if (a == null && b == null) return true;
         if (a == null) return false;
         return a.equals(b);
+    }
+
+    @Override
+    public Void visit(Statement.ExpressionStatement it) {
+        evaluate(it.expression());
+        return null;
+    }
+
+    @Override
+    public Void visit(Statement.PrintStatement it) {
+        var content = evaluate(it.expression());
+        System.out.println(stringify(content));
+        return null;
     }
 }

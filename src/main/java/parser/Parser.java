@@ -4,6 +4,7 @@ import doctor.Doctor;
 import scanner.Token;
 import scanner.TokenType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -21,13 +22,43 @@ public class Parser {
         this.doctor = doctor;
     }
 
-    public Expression parse() {
+    public Expression parseExpression() {
         try {
             return expression();
         } catch (ParseError error) {
             synchronize();
             return null;
         }
+    }
+
+    public List<Statement> parseStatements() {
+        var output = new ArrayList<Statement>();
+        while (!isEOF()) {
+            try {
+                output.add(statement());
+            } catch (ParseError error) {
+                synchronize();
+            }
+        }
+        return output;
+    }
+
+    private Statement statement() {
+        if (match(PRINT)) return printStatement();
+
+        return expressionStatement();
+    }
+
+    private Statement printStatement() {
+        var expression = expression();
+        consume(SEMICOLON, "Expect ';' after expression");
+        return new Statement.PrintStatement(expression);
+    }
+
+    private Statement expressionStatement() {
+        var expression = expression();
+        consume(SEMICOLON, "Expect ';' after expression");
+        return new Statement.ExpressionStatement(expression);
     }
 
     private Expression expression() {
