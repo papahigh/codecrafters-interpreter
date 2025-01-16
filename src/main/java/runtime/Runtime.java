@@ -6,13 +6,17 @@ import parser.Expression;
 import parser.Statement;
 import scanner.Token;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 
 public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
-    private final Environment environment = new Environment();
+    private final Deque<Environment> environments = new LinkedList<>();
     private final Doctor doctor;
 
     public Runtime(Doctor doctor) {
+        this.environments.push(new Environment());
         this.doctor = doctor;
     }
 
@@ -38,6 +42,13 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
     public Object visit(Expression.TernaryExpression it) {
         var condition = evaluate(it.condition());
         return isTruthy(condition) ? evaluate(it.thenBranch()) : evaluate(it.elseBranch());
+    }
+
+    @Override
+    public Object visit(Expression.AssignExpression it) {
+        var value = evaluate(it.value());
+        environment().assign(it.name(), value);
+        return value;
     }
 
     @Override
@@ -93,7 +104,19 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
 
     @Override
     public Object visit(Expression.VariableExpression it) {
-        return environment.get(it.name());
+        return environment().get(it.name());
+    }
+
+    @Override
+    public Void visit(Statement.BlockStatement it) {
+        this.environments.push(new Environment(this.environments.peek()));
+        try {
+            for (var s : it.statements())
+                s.accept(this);
+        } finally {
+            this.environments.pop();
+        }
+        return null;
     }
 
     @Override
@@ -115,8 +138,12 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
         if (it.initializer() != null) {
             value = evaluate(it.initializer());
         }
-        environment.define(it.name(), value);
+        environment().define(it.name(), value);
         return null;
+    }
+
+    private Environment environment() {
+        return environments.peek();
     }
 
     private Object evaluate(Expression expression) {

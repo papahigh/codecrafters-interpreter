@@ -18,6 +18,7 @@ class Generate {
 
     private static void generateStatements() throws IOException {
         var statementTypes = List.of(
+                entry("BlockStatement", "List<Statement> statements"),
                 entry("ExpressionStatement", "Expression expression"),
                 entry("PrintStatement", "Expression expression"),
                 entry("VarStatement", "Token name, Expression initializer")
@@ -28,6 +29,7 @@ class Generate {
     private static void generateExpressions() throws IOException {
         var expressionTypes = List.of(
                 entry("TernaryExpression", "Expression condition, Expression thenBranch, Expression elseBranch"),
+                entry("AssignExpression", "Token name, Expression value"),
                 entry("BinaryExpression", "Expression left, Token operator, Expression right"),
                 entry("GroupingExpression", "Expression expression"),
                 entry("LiteralExpression", "Object value"),

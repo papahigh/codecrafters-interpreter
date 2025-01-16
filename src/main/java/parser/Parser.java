@@ -62,8 +62,18 @@ public class Parser {
 
     private Statement statement() {
         if (match(PRINT)) return printStatement();
+        if (match(LEFT_BRACE)) return new Statement.BlockStatement(blockStatement());
 
         return expressionStatement();
+    }
+
+    private List<Statement> blockStatement() {
+        var statements = new ArrayList<Statement>();
+        while (!check(RIGHT_BRACE) && !isEOF()) {
+            statements.add(declaration());
+        }
+        consume(RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
     }
 
     private Statement printStatement() {
@@ -83,12 +93,28 @@ public class Parser {
     }
 
     private Expression ternary() {
-        var expression = equality();
+        var expression = assignment();
         if (match(QUESTION)) {
             var thenBranch = expression();
             consume(COLON, "Expect ':' in ternary operator");
             var elseBranch = expression();
             expression = new Expression.TernaryExpression(expression, thenBranch, elseBranch);
+        }
+        return expression;
+    }
+
+    private Expression assignment() {
+        var expression = equality();
+
+        if (match(EQUAL)) {
+            var equals = previous();
+            var value = expression();
+
+            if (expression instanceof Expression.VariableExpression(Token name)) {
+                return new Expression.AssignExpression(name, value);
+            } else {
+                error(equals, "Invalid assignment target.");
+            }
         }
         return expression;
     }
@@ -109,11 +135,11 @@ public class Parser {
         return binary(this::unary, SLASH, STAR);
     }
 
-    private Expression binary(Supplier<Expression> leftSupplier, TokenType... operators) {
-        var expression = leftSupplier.get();
+    private Expression binary(Supplier<Expression> supplier, TokenType... operators) {
+        var expression = supplier.get();
         while (match(operators)) {
             var operator = previous();
-            var right = leftSupplier.get();
+            var right = supplier.get();
             expression = new Expression.BinaryExpression(expression, operator, right);
         }
         return expression;

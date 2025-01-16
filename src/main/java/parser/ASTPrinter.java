@@ -1,6 +1,8 @@
 package parser;
 
 
+import java.util.stream.Collectors;
+
 import static java.util.Optional.ofNullable;
 
 public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor<String> {
@@ -16,6 +18,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     @Override
     public String visit(Expression.TernaryExpression it) {
         return parenthesize("ternary", it.condition(), it.thenBranch(), it.elseBranch());
+    }
+
+    @Override
+    public String visit(Expression.AssignExpression it) {
+        return parenthesize(it.name().lexeme(), it.value());
     }
 
     @Override
@@ -42,6 +49,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     @Override
     public String visit(Expression.VariableExpression it) {
         return parenthesize(it.name().lexeme());
+    }
+
+    @Override
+    public String visit(Statement.BlockStatement it) {
+        return it.statements().stream().map(this::print).collect(Collectors.joining("\n"));
     }
 
     @Override

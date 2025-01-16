@@ -2,14 +2,24 @@ package parser;
 
 import scanner.Token;
 
+import java.util.List;
+
 public sealed interface Statement {
 
     <R> R accept(Visitor<R> visitor);
 
     interface Visitor<R> {
+        R visit(BlockStatement it);
         R visit(ExpressionStatement it);
         R visit(PrintStatement it);
         R visit(VarStatement it);
+    }
+
+    record BlockStatement(List<Statement> statements) implements Statement {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     record ExpressionStatement(Expression expression) implements Statement {
