@@ -1,6 +1,7 @@
 package parser;
 
 import doctor.Doctor;
+import doctor.RuntimeError;
 import scanner.Token;
 import scanner.TokenType;
 
@@ -25,7 +26,7 @@ public class Parser {
     public Expression parseExpression() {
         try {
             return expression();
-        } catch (ParseError error) {
+        } catch (RuntimeError | ParseError error) {
             synchronize();
             return null;
         }
@@ -35,12 +36,28 @@ public class Parser {
         var output = new ArrayList<Statement>();
         while (!isEOF()) {
             try {
-                output.add(statement());
-            } catch (ParseError error) {
+                output.add(declaration());
+            } catch (RuntimeError | ParseError error) {
                 synchronize();
             }
         }
         return output;
+    }
+
+    private Statement declaration() {
+        if (match(VAR)) return varDeclaration();
+
+        return statement();
+    }
+
+    private Statement varDeclaration() {
+        Token name = consume(IDENTIFIER, "Expect variable name.");
+
+        Expression initializer = null;
+        if (match(EQUAL)) initializer = expression();
+
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        return new Statement.VarStatement(name, initializer);
     }
 
     private Statement statement() {
@@ -116,6 +133,7 @@ public class Parser {
         if (match(TRUE)) return new Expression.LiteralExpression(true);
         if (match(NIL)) return new Expression.LiteralExpression(null);
         if (match(NUMBER, STRING)) return new Expression.LiteralExpression(previous().literal());
+        if (match(IDENTIFIER)) return new Expression.VariableExpression(previous());
 
         if (match(LEFT_PAREN)) {
             var expression = expression();
@@ -151,7 +169,10 @@ public class Parser {
     }
 
     private Token consume(TokenType type, String message) {
-        if (check(type)) return advance();
+        if (check(type)) {
+            advance();
+            return previous();
+        }
         throw error(peek(), message);
     }
 

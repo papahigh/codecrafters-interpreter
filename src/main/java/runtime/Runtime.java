@@ -9,6 +9,7 @@ import scanner.Token;
 
 public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
+    private final Environment environment = new Environment();
     private final Doctor doctor;
 
     public Runtime(Doctor doctor) {
@@ -90,6 +91,34 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
         };
     }
 
+    @Override
+    public Object visit(Expression.VariableExpression it) {
+        return environment.get(it.name());
+    }
+
+    @Override
+    public Void visit(Statement.ExpressionStatement it) {
+        evaluate(it.expression());
+        return null;
+    }
+
+    @Override
+    public Void visit(Statement.PrintStatement it) {
+        var content = evaluate(it.expression());
+        System.out.println(stringify(content));
+        return null;
+    }
+
+    @Override
+    public Void visit(Statement.VarStatement it) {
+        Object value = null;
+        if (it.initializer() != null) {
+            value = evaluate(it.initializer());
+        }
+        environment.define(it.name(), value);
+        return null;
+    }
+
     private Object evaluate(Expression expression) {
         return expression.accept(this);
     }
@@ -124,18 +153,5 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
         if (a == null && b == null) return true;
         if (a == null) return false;
         return a.equals(b);
-    }
-
-    @Override
-    public Void visit(Statement.ExpressionStatement it) {
-        evaluate(it.expression());
-        return null;
-    }
-
-    @Override
-    public Void visit(Statement.PrintStatement it) {
-        var content = evaluate(it.expression());
-        System.out.println(stringify(content));
-        return null;
     }
 }

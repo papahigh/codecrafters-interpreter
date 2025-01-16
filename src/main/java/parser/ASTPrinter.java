@@ -40,6 +40,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     }
 
     @Override
+    public String visit(Expression.VariableExpression it) {
+        return parenthesize(it.name().lexeme());
+    }
+
+    @Override
     public String visit(Statement.ExpressionStatement it) {
         return it.expression().accept(this);
     }
@@ -47,6 +52,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     @Override
     public String visit(Statement.PrintStatement it) {
         return parenthesize("print", it.expression());
+    }
+
+    @Override
+    public String visit(Statement.VarStatement it) {
+        return parenthesize(it.name().lexeme(), it.initializer());
     }
 
     private String parenthesize(String name, Expression... expression) {
