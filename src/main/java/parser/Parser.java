@@ -136,7 +136,7 @@ public class Parser {
         var expression = and();
         if (match(OR)) {
             var operator = previous();
-            var right = and();
+            var right = or();
             expression = new Expression.LogicalExpression(expression, operator, right);
         }
         return expression;
@@ -146,7 +146,7 @@ public class Parser {
         var expression = equality();
         if (match(AND)) {
             var operator = previous();
-            var right = equality();
+            var right = or();
             expression = new Expression.LogicalExpression(expression, operator, right);
         }
         return expression;
