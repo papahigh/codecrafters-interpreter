@@ -61,6 +61,7 @@ public class Parser {
     }
 
     private Statement statement() {
+        if (match(FOR)) return forStatement();
         if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
         if (match(WHILE)) return whileStatement();
@@ -69,10 +70,41 @@ public class Parser {
         return expressionStatement();
     }
 
+    private Statement forStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'for'.");
+        var initializer = (Statement) null;
+        if (!match(SEMICOLON)) {
+            initializer = match(VAR) ? varDeclaration() : expressionStatement();
+        }
+        var condition = (Expression) null;
+        if (!match(SEMICOLON)) {
+            condition = expression();
+        }
+        consume(SEMICOLON, "Expect ';' after loop condition.");
+        var increment = (Expression) null;
+        if (!match(RIGHT_PAREN)) {
+            increment = expression();
+            consume(RIGHT_PAREN, "Expect ')' after clauses.");
+        }
+        var body = statement();
+
+
+        if (increment != null) {
+            body = new Statement.BlockStatement(List.of(body, new Statement.ExpressionStatement(increment)));
+        }
+        if (condition == null) {
+            condition = new Expression.LiteralExpression(true);
+        }
+        var loop = new Statement.WhileStatement(condition, body);
+        if (initializer == null)
+            return loop;
+        return new Statement.BlockStatement(List.of(initializer, loop));
+    }
+
     private Statement ifStatement() {
-        consume(LEFT_PAREN,"Expect '(' after 'if'.");
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
         var condition = expression();
-        consume(RIGHT_PAREN,"Expect ')' after 'if' condition.");
+        consume(RIGHT_PAREN, "Expect ')' after 'if' condition.");
         var thenBranch = statement();
         var elseBranch = (Statement) null;
         if (match(ELSE)) {
@@ -82,9 +114,9 @@ public class Parser {
     }
 
     private Statement whileStatement() {
-        consume(LEFT_PAREN,"Expect '(' after 'while'.");
+        consume(LEFT_PAREN, "Expect '(' after 'while'.");
         var condition = expression();
-        consume(RIGHT_PAREN,"Expect ')' after 'while' condition.");
+        consume(RIGHT_PAREN, "Expect ')' after 'while' condition.");
         var body = statement();
         return new Statement.WhileStatement(condition, body);
     }
