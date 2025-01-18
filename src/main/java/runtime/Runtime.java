@@ -189,7 +189,7 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
         return switch (object) {
             case Boolean it -> it;
             case Double it -> it != 0.0;
-            case String it -> !it.isEmpty();
+            case String _ -> true;
             default -> false;
         };
     }
