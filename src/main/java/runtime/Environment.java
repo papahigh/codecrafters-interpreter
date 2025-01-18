@@ -38,4 +38,21 @@ class Environment {
 
         throw new RuntimeError(name, "Undefined variable '%s'".formatted(name.lexeme()));
     }
+
+
+    static class Stack {
+        Environment current = new Environment();
+
+        Environment peek() {
+            return current;
+        }
+
+        Environment push() {
+            return current = new Environment(current);
+        }
+
+        Environment pop() {
+            return current = current.parent;
+        }
+    }
 }

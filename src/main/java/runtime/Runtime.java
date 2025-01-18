@@ -6,17 +6,13 @@ import parser.Expression;
 import parser.Statement;
 import scanner.Token;
 
-import java.util.Deque;
-import java.util.LinkedList;
-
 
 public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
-    private final Deque<Environment> environments = new LinkedList<>();
+    private final Environment.Stack environment = new Environment.Stack();
     private final Doctor doctor;
 
     public Runtime(Doctor doctor) {
-        this.environments.push(new Environment());
         this.doctor = doctor;
     }
 
@@ -109,12 +105,12 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
 
     @Override
     public Void visit(Statement.BlockStatement it) {
-        this.environments.push(new Environment(this.environments.peek()));
+        this.environment.push();
         try {
             for (var s : it.statements())
                 s.accept(this);
         } finally {
-            this.environments.pop();
+            this.environment.pop();
         }
         return null;
     }
@@ -143,7 +139,7 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
     }
 
     private Environment environment() {
-        return environments.peek();
+        return environment.peek();
     }
 
     private Object evaluate(Expression expression) {
