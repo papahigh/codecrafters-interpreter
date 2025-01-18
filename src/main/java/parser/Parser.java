@@ -61,10 +61,23 @@ public class Parser {
     }
 
     private Statement statement() {
+        if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
         if (match(LEFT_BRACE)) return new Statement.BlockStatement(blockStatement());
 
         return expressionStatement();
+    }
+
+    private Statement ifStatement() {
+        consume(LEFT_PAREN,"Expect '(' after 'if'.");
+        var condition = expression();
+        consume(RIGHT_PAREN,"Expect ')' after 'if' condition.");
+        var thenBranch = statement();
+        var elseBranch = (Statement) null;
+        if (match(ELSE)) {
+            elseBranch = statement();
+        }
+        return new Statement.IfStatement(condition, thenBranch, elseBranch);
     }
 
     private List<Statement> blockStatement() {
@@ -104,7 +117,7 @@ public class Parser {
     }
 
     private Expression assignment() {
-        var expression = equality();
+        var expression = or();
 
         if (match(EQUAL)) {
             var equals = previous();
@@ -115,6 +128,26 @@ public class Parser {
             } else {
                 error(equals, "Invalid assignment target.");
             }
+        }
+        return expression;
+    }
+
+    private Expression or() {
+        var expression = and();
+        if (match(OR)) {
+            var operator = previous();
+            var right = and();
+            expression = new Expression.LogicalExpression(expression, operator, right);
+        }
+        return expression;
+    }
+
+    private Expression and() {
+        var expression = equality();
+        if (match(AND)) {
+            var operator = previous();
+            var right = equality();
+            expression = new Expression.LogicalExpression(expression, operator, right);
         }
         return expression;
     }

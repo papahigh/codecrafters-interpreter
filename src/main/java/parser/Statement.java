@@ -11,6 +11,7 @@ public sealed interface Statement {
     interface Visitor<R> {
         R visit(BlockStatement it);
         R visit(ExpressionStatement it);
+        R visit(IfStatement it);
         R visit(PrintStatement it);
         R visit(VarStatement it);
     }
@@ -23,6 +24,13 @@ public sealed interface Statement {
     }
 
     record ExpressionStatement(Expression expression) implements Statement {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    record IfStatement(Expression condition, Statement thenBranch, Statement elseBranch) implements Statement {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);

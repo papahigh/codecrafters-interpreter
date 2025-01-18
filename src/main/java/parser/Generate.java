@@ -20,6 +20,7 @@ class Generate {
         var statementTypes = List.of(
                 entry("BlockStatement", "List<Statement> statements"),
                 entry("ExpressionStatement", "Expression expression"),
+                entry("IfStatement", "Expression condition, Statement thenBranch, Statement elseBranch"),
                 entry("PrintStatement", "Expression expression"),
                 entry("VarStatement", "Token name, Expression initializer")
         );
@@ -32,6 +33,7 @@ class Generate {
                 entry("AssignExpression", "Token name, Expression value"),
                 entry("BinaryExpression", "Expression left, Token operator, Expression right"),
                 entry("GroupingExpression", "Expression expression"),
+                entry( "LogicalExpression", "Expression left, Token operator, Expression right"),
                 entry("LiteralExpression", "Object value"),
                 entry("UnaryExpression", "Token operator, Expression right"),
                 entry("VariableExpression", "Token name")

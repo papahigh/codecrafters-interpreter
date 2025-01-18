@@ -11,6 +11,7 @@ public sealed interface Expression {
         R visit(AssignExpression it);
         R visit(BinaryExpression it);
         R visit(GroupingExpression it);
+        R visit(LogicalExpression it);
         R visit(LiteralExpression it);
         R visit(UnaryExpression it);
         R visit(VariableExpression it);
@@ -38,6 +39,13 @@ public sealed interface Expression {
     }
 
     record GroupingExpression(Expression expression) implements Expression {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    record LogicalExpression(Expression left, Token operator, Expression right) implements Expression {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);

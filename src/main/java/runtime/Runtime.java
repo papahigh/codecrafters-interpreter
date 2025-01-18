@@ -5,6 +5,7 @@ import doctor.RuntimeError;
 import parser.Expression;
 import parser.Statement;
 import scanner.Token;
+import scanner.TokenType;
 
 
 public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Void> {
@@ -84,6 +85,17 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
     }
 
     @Override
+    public Object visit(Expression.LogicalExpression it) {
+        Object left = evaluate(it.left());
+        if (it.operator().type() == TokenType.OR) {
+            if (isTruthy(left)) return left;
+        } else {
+            if (!isTruthy(left)) return left;
+        }
+        return evaluate(it.right());
+    }
+
+    @Override
     public Object visit(Expression.LiteralExpression it) {
         return it.value();
     }
@@ -118,6 +130,16 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
     @Override
     public Void visit(Statement.ExpressionStatement it) {
         evaluate(it.expression());
+        return null;
+    }
+
+    @Override
+    public Void visit(Statement.IfStatement it) {
+        if (isTruthy(evaluate(it.condition()))) {
+            it.thenBranch().accept(this);
+        } else if (it.elseBranch() != null) {
+            it.elseBranch().accept(this);
+        }
         return null;
     }
 

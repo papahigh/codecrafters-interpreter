@@ -36,6 +36,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     }
 
     @Override
+    public String visit(Expression.LogicalExpression it) {
+        return parenthesize(it.operator().lexeme(), it.left(), it.right());
+    }
+
+    @Override
     public String visit(Expression.LiteralExpression it) {
         if (it.value() == null) return "nil";
         return it.value().toString();
@@ -62,6 +67,16 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     }
 
     @Override
+    public String visit(Statement.IfStatement it) {
+        var cond = it.condition();
+        var left = it.thenBranch();
+        var right = it.elseBranch();
+        return right == null
+                ? parenthesizeValues(cond.accept(this), left.accept(this))
+                : parenthesizeValues(cond.accept(this), left.accept(this), right.accept(this));
+    }
+
+    @Override
     public String visit(Statement.PrintStatement it) {
         return parenthesize("print", it.expression());
     }
@@ -77,6 +92,17 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
         for (var child : expression) {
             builder.append(" ");
             builder.append(child.accept(this));
+        }
+        builder.append(")");
+        return builder.toString();
+    }
+
+    private String parenthesizeValues(String name, String... values) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("(").append(name);
+        for (var value : values) {
+            builder.append(" ");
+            builder.append(value);
         }
         builder.append(")");
         return builder.toString();
