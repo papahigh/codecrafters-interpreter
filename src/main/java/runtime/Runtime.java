@@ -160,6 +160,14 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
         return null;
     }
 
+    @Override
+    public Void visit(Statement.WhileStatement it) {
+        while (isTruthy(evaluate(it.condition()))) {
+            it.body().accept(this);
+        }
+        return null;
+    }
+
     private Environment environment() {
         return environment.peek();
     }

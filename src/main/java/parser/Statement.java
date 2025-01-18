@@ -14,6 +14,7 @@ public sealed interface Statement {
         R visit(IfStatement it);
         R visit(PrintStatement it);
         R visit(VarStatement it);
+        R visit(WhileStatement it);
     }
 
     record BlockStatement(List<Statement> statements) implements Statement {
@@ -45,6 +46,13 @@ public sealed interface Statement {
     }
 
     record VarStatement(Token name, Expression initializer) implements Statement {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    record WhileStatement(Expression condition, Statement body) implements Statement {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);

@@ -72,8 +72,8 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
         var left = it.thenBranch();
         var right = it.elseBranch();
         return right == null
-                ? parenthesizeValues(cond.accept(this), left.accept(this))
-                : parenthesizeValues(cond.accept(this), left.accept(this), right.accept(this));
+                ? parenthesizeStrings(cond.accept(this), left.accept(this))
+                : parenthesizeStrings(cond.accept(this), left.accept(this), right.accept(this));
     }
 
     @Override
@@ -84,6 +84,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     @Override
     public String visit(Statement.VarStatement it) {
         return parenthesize(it.name().lexeme(), it.initializer());
+    }
+
+    @Override
+    public String visit(Statement.WhileStatement it) {
+        return parenthesizeStrings("while", it.condition().accept(this), it.body().accept(this));
     }
 
     private String parenthesize(String name, Expression... expression) {
@@ -97,7 +102,7 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
         return builder.toString();
     }
 
-    private String parenthesizeValues(String name, String... values) {
+    private String parenthesizeStrings(String name, String... values) {
         StringBuilder builder = new StringBuilder();
         builder.append("(").append(name);
         for (var value : values) {

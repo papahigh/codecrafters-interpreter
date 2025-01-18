@@ -22,7 +22,8 @@ class Generate {
                 entry("ExpressionStatement", "Expression expression"),
                 entry("IfStatement", "Expression condition, Statement thenBranch, Statement elseBranch"),
                 entry("PrintStatement", "Expression expression"),
-                entry("VarStatement", "Token name, Expression initializer")
+                entry("VarStatement", "Token name, Expression initializer"),
+                entry("WhileStatement", "Expression condition, Statement body")
         );
         generateAST("Statement", statementTypes);
     }

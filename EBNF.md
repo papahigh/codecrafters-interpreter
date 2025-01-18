@@ -12,6 +12,7 @@ varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
                | printStmt
+               | whileStmt
                | ifStmt
                | block ;
 
@@ -20,6 +21,7 @@ exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
 ifStmt         → "if" "(" expression ")" statement
                ( "else" statement )? ;
+whileStmt      → "while" "(" expression ")" statement ;
 
 expression     → ternary ;
 ternary        → assignment ( "?" assignment ":" assignment)* ;

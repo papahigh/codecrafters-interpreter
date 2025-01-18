@@ -63,6 +63,7 @@ public class Parser {
     private Statement statement() {
         if (match(IF)) return ifStatement();
         if (match(PRINT)) return printStatement();
+        if (match(WHILE)) return whileStatement();
         if (match(LEFT_BRACE)) return new Statement.BlockStatement(blockStatement());
 
         return expressionStatement();
@@ -78,6 +79,14 @@ public class Parser {
             elseBranch = statement();
         }
         return new Statement.IfStatement(condition, thenBranch, elseBranch);
+    }
+
+    private Statement whileStatement() {
+        consume(LEFT_PAREN,"Expect '(' after 'while'.");
+        var condition = expression();
+        consume(RIGHT_PAREN,"Expect ')' after 'while' condition.");
+        var body = statement();
+        return new Statement.WhileStatement(condition, body);
     }
 
     private List<Statement> blockStatement() {
