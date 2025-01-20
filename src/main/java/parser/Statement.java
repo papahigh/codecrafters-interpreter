@@ -11,8 +11,10 @@ public sealed interface Statement {
     interface Visitor<R> {
         R visit(BlockStatement it);
         R visit(ExpressionStatement it);
+        R visit(FunctionStatement it);
         R visit(IfStatement it);
         R visit(PrintStatement it);
+        R visit(ReturnStatement it);
         R visit(VarStatement it);
         R visit(WhileStatement it);
     }
@@ -31,6 +33,13 @@ public sealed interface Statement {
         }
     }
 
+    record FunctionStatement(Token name, List<Token> parameters, List<Statement> body) implements Statement {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
     record IfStatement(Expression condition, Statement thenBranch, Statement elseBranch) implements Statement {
         @Override
         public <R> R accept(Visitor<R> visitor) {
@@ -39,6 +48,13 @@ public sealed interface Statement {
     }
 
     record PrintStatement(Expression expression) implements Statement {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    record ReturnStatement(Token keyword, Expression value) implements Statement {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);

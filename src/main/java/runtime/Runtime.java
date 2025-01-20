@@ -7,14 +7,33 @@ import parser.Statement;
 import scanner.Token;
 import scanner.TokenType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
-    private final Environment.Stack environment = new Environment.Stack();
+    final Environment globals = new Environment();
+    private Environment environment = new Environment(globals);
     private final Doctor doctor;
 
     public Runtime(Doctor doctor) {
         this.doctor = doctor;
+    }
+
+    {
+        globals.define("clock", new Callable() {
+
+            @Override
+            public Object call(Runtime runtime, List<Object> args) {
+                return (double) System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public String toString() {
+                return "<native fn>";
+            }
+        });
     }
 
     public void run(Expression expression) {
@@ -44,7 +63,7 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
     @Override
     public Object visit(Expression.AssignExpression it) {
         var value = evaluate(it.value());
-        environment().assign(it.name(), value);
+        environment.assign(it.name(), value);
         return value;
     }
 
@@ -80,6 +99,24 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
     }
 
     @Override
+    public Object visit(Expression.CallExpression it) {
+        var callee = evaluate(it.callee());
+        var arguments = new ArrayList<>(it.arguments().size());
+
+        for (var argument : it.arguments()) {
+            arguments.add(evaluate(argument));
+        }
+
+        if (!(callee instanceof Callable c))
+            throw new RuntimeError(it.paren(), "Can only call functions and classes.");
+
+        if (c.length() != arguments.size())
+            throw new RuntimeError(it.paren(), "Expected %s arguments but got %s.".formatted(c.length(), arguments.size()));
+
+        return c.call(this, arguments);
+    }
+
+    @Override
     public Object visit(Expression.GroupingExpression it) {
         return evaluate(it.expression());
     }
@@ -112,24 +149,25 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
 
     @Override
     public Object visit(Expression.VariableExpression it) {
-        return environment().get(it.name());
+        return environment.get(it.name());
     }
 
     @Override
     public Void visit(Statement.BlockStatement it) {
-        this.environment.push();
-        try {
-            for (var s : it.statements())
-                s.accept(this);
-        } finally {
-            this.environment.pop();
-        }
+        executeBlock(it.statements(), environment.fork());
         return null;
     }
 
     @Override
     public Void visit(Statement.ExpressionStatement it) {
         evaluate(it.expression());
+        return null;
+    }
+
+    @Override
+    public Void visit(Statement.FunctionStatement it) {
+        var callable = new Callable.DefaultCallable(it, environment);
+        environment.define(it.name().lexeme(), callable);
         return null;
     }
 
@@ -151,12 +189,21 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
     }
 
     @Override
+    public Void visit(Statement.ReturnStatement it) {
+        var value = (Object) null;
+        if (it.value() != null) {
+            value = evaluate(it.value());
+        }
+        throw new Callable.Return(value);
+    }
+
+    @Override
     public Void visit(Statement.VarStatement it) {
         Object value = null;
         if (it.initializer() != null) {
             value = evaluate(it.initializer());
         }
-        environment().define(it.name(), value);
+        environment.define(it.name(), value);
         return null;
     }
 
@@ -168,8 +215,15 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
         return null;
     }
 
-    private Environment environment() {
-        return environment.peek();
+    void executeBlock(List<Statement> statements, Environment environment) {
+        var previous = this.environment;
+        try {
+            this.environment = environment;
+            for (var s : statements)
+                s.accept(this);
+        } finally {
+            this.environment = previous;
+        }
     }
 
     private Object evaluate(Expression expression) {

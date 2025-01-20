@@ -2,6 +2,8 @@ package parser;
 
 import scanner.Token;
 
+import java.util.List;
+
 public sealed interface Expression {
 
     <R> R accept(Visitor<R> visitor);
@@ -10,6 +12,7 @@ public sealed interface Expression {
         R visit(TernaryExpression it);
         R visit(AssignExpression it);
         R visit(BinaryExpression it);
+        R visit(CallExpression it);
         R visit(GroupingExpression it);
         R visit(LogicalExpression it);
         R visit(LiteralExpression it);
@@ -32,6 +35,13 @@ public sealed interface Expression {
     }
 
     record BinaryExpression(Expression left, Token operator, Expression right) implements Expression {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    record CallExpression(Expression callee, Token paren, List<Expression> arguments) implements Expression {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);

@@ -31,6 +31,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     }
 
     @Override
+    public String visit(Expression.CallExpression it) {
+        return parenthesize("call", it.callee());
+    }
+
+    @Override
     public String visit(Expression.GroupingExpression it) {
         return parenthesize("group", it.expression());
     }
@@ -67,6 +72,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     }
 
     @Override
+    public String visit(Statement.FunctionStatement it) {
+        return parenthesizeStrings("function", it.name().lexeme());
+    }
+
+    @Override
     public String visit(Statement.IfStatement it) {
         var cond = it.condition();
         var left = it.thenBranch();
@@ -79,6 +89,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     @Override
     public String visit(Statement.PrintStatement it) {
         return parenthesize("print", it.expression());
+    }
+
+    @Override
+    public String visit(Statement.ReturnStatement it) {
+        return parenthesize("return", it.value());
     }
 
     @Override

@@ -18,6 +18,10 @@ class Environment {
         parent = null;
     }
 
+    Environment fork() {
+        return new Environment(this);
+    }
+
     void assign(Token name, Object value) {
         if (values.containsKey(name.lexeme()))
             values.put(name.lexeme(), value);
@@ -27,7 +31,11 @@ class Environment {
     }
 
     void define(Token name, Object value) {
-        values.put(name.lexeme(), value);
+        define(name.lexeme(), value);
+    }
+
+    void define(String name, Object value) {
+        values.put(name, value);
     }
 
     Object get(Token name) {
@@ -37,22 +45,5 @@ class Environment {
             return parent.get(name);
 
         throw new RuntimeError(name, "Undefined variable '%s'".formatted(name.lexeme()));
-    }
-
-
-    static class Stack {
-        Environment current = new Environment();
-
-        Environment peek() {
-            return current;
-        }
-
-        Environment push() {
-            return current = new Environment(current);
-        }
-
-        Environment pop() {
-            return current = current.parent;
-        }
     }
 }

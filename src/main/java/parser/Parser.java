@@ -45,9 +45,28 @@ public class Parser {
     }
 
     private Statement declaration() {
+        if (match(FUN)) return funDeclaration("function");
         if (match(VAR)) return varDeclaration();
 
         return statement();
+    }
+
+    private Statement funDeclaration(String kind) {
+        var name = consume(IDENTIFIER, "Expect " + kind + " name.");
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+        var parameters = new ArrayList<Token>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (parameters.size() >= 255) {
+                    error(peek(), "Can't have more than 255 parameters.");
+                }
+                parameters.add(consume(IDENTIFIER, "Expect parameter name."));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        var body = blockStatement();
+        return new Statement.FunctionStatement(name, parameters, body);
     }
 
     private Statement varDeclaration() {
@@ -63,11 +82,22 @@ public class Parser {
     private Statement statement() {
         if (match(FOR)) return forStatement();
         if (match(IF)) return ifStatement();
+        if (match(RETURN)) return returnStatement();
         if (match(PRINT)) return printStatement();
         if (match(WHILE)) return whileStatement();
         if (match(LEFT_BRACE)) return new Statement.BlockStatement(blockStatement());
 
         return expressionStatement();
+    }
+
+    private Statement returnStatement() {
+        var token = previous();
+        var value = (Expression) null;
+        if (!check(SEMICOLON)) {
+            value = expression();
+        }
+        consume(SEMICOLON, "Expect ';' after return value.");
+        return new Statement.ReturnStatement(token, value);
     }
 
     private Statement forStatement() {
@@ -225,7 +255,33 @@ public class Parser {
             var right = unary();
             return new Expression.UnaryExpression(operator, right);
         }
-        return primary();
+        return call();
+    }
+
+    private Expression call() {
+        var expression = primary();
+        while (true) {
+            if (match(LEFT_PAREN)) {
+                expression = finishCall(expression);
+            } else {
+                break;
+            }
+        }
+        return expression;
+    }
+
+    private Expression finishCall(Expression expression) {
+        var arguments = new ArrayList<Expression>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (arguments.size() >= 255) {
+                    error(peek(), "Can't have more than 255 arguments.");
+                }
+                arguments.add(expression());
+            } while (match(COMMA));
+        }
+        var paren = consume(RIGHT_PAREN, "Expect ')' after arguments." );
+        return new Expression.CallExpression(expression, paren, arguments);
     }
 
     private Expression primary() {

@@ -20,8 +20,10 @@ class Generate {
         var statementTypes = List.of(
                 entry("BlockStatement", "List<Statement> statements"),
                 entry("ExpressionStatement", "Expression expression"),
+                entry("FunctionStatement", "Token name, List<Token> parameters, List<Statement> body"),
                 entry("IfStatement", "Expression condition, Statement thenBranch, Statement elseBranch"),
                 entry("PrintStatement", "Expression expression"),
+                entry("ReturnStatement", "Token keyword, Expression value"),
                 entry("VarStatement", "Token name, Expression initializer"),
                 entry("WhileStatement", "Expression condition, Statement body")
         );
@@ -33,8 +35,9 @@ class Generate {
                 entry("TernaryExpression", "Expression condition, Expression thenBranch, Expression elseBranch"),
                 entry("AssignExpression", "Token name, Expression value"),
                 entry("BinaryExpression", "Expression left, Token operator, Expression right"),
+                entry("CallExpression", "Expression callee, Token paren, List<Expression> arguments"),
                 entry("GroupingExpression", "Expression expression"),
-                entry( "LogicalExpression", "Expression left, Token operator, Expression right"),
+                entry("LogicalExpression", "Expression left, Token operator, Expression right"),
                 entry("LiteralExpression", "Object value"),
                 entry("UnaryExpression", "Token operator, Expression right"),
                 entry("VariableExpression", "Token name")
@@ -52,6 +55,8 @@ class Generate {
                     package parser;
                     
                     import scanner.Token;
+                    
+                    import java.util.List;
                     
                     public sealed interface BASE {
                     
