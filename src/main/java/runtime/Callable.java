@@ -1,8 +1,11 @@
 package runtime;
 
 import parser.Statement;
+import scanner.Token;
 
 import java.util.List;
+
+import static java.util.Optional.ofNullable;
 
 public interface Callable {
 
@@ -14,26 +17,30 @@ public interface Callable {
 
     class DefaultCallable implements Callable {
 
-        private final Statement.FunctionStatement function;
+        private final Token name;
+        private final List<Token> params;
+        private final List<Statement> body;
         private final Environment closure;
 
-        DefaultCallable(Statement.FunctionStatement function, Environment closure) {
-            this.function = function;
+        public DefaultCallable(Token name, List<Token> params, List<Statement> body, Environment closure) {
+            this.name = name;
+            this.params = params;
+            this.body = body;
             this.closure = closure;
         }
 
         public int length() {
-            return function.parameters().size();
+            return params.size();
         }
 
         @Override
         public Object call(Runtime runtime, List<Object> args) {
             try {
                 var environment = closure.fork();
-                for (int i = 0; i < function.parameters().size(); i++) {
-                    environment.define(function.parameters().get(i).lexeme(), args.get(i));
+                for (int i = 0; i < params.size(); i++) {
+                    environment.define(params.get(i).lexeme(), args.get(i));
                 }
-                runtime.executeBlock(function.body(), environment);
+                runtime.executeBlock(body, environment);
             } catch (Return it) {
                 return it.value;
             }
@@ -42,7 +49,7 @@ public interface Callable {
 
         @Override
         public String toString() {
-            return "<fn " + function.name().lexeme() + ">";
+            return "<fn %s>".formatted(ofNullable(name).map(Token::lexeme).orElse("anonymous"));
         }
     }
 

@@ -1,6 +1,8 @@
 package parser;
 
 
+import scanner.Token;
+
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
@@ -33,6 +35,11 @@ public class ASTPrinter implements Expression.Visitor<String>, Statement.Visitor
     @Override
     public String visit(Expression.CallExpression it) {
         return parenthesize("call", it.callee());
+    }
+
+    @Override
+    public String visit(Expression.FunctionExpression it) {
+        return parenthesizeStrings("function", ofNullable(it.name()).map(Token::lexeme).orElse("anonymous"));
     }
 
     @Override

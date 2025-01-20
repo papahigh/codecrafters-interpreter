@@ -13,6 +13,7 @@ public sealed interface Expression {
         R visit(AssignExpression it);
         R visit(BinaryExpression it);
         R visit(CallExpression it);
+        R visit(FunctionExpression it);
         R visit(GroupingExpression it);
         R visit(LogicalExpression it);
         R visit(LiteralExpression it);
@@ -42,6 +43,13 @@ public sealed interface Expression {
     }
 
     record CallExpression(Expression callee, Token paren, List<Expression> arguments) implements Expression {
+        @Override
+        public <R> R accept(Visitor<R> visitor) {
+            return visitor.visit(this);
+        }
+    }
+
+    record FunctionExpression(Token name, List<Token> parameters, List<Statement> body) implements Expression {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);

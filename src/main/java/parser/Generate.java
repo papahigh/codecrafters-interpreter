@@ -36,6 +36,7 @@ class Generate {
                 entry("AssignExpression", "Token name, Expression value"),
                 entry("BinaryExpression", "Expression left, Token operator, Expression right"),
                 entry("CallExpression", "Expression callee, Token paren, List<Expression> arguments"),
+                entry("FunctionExpression", "Token name, List<Token> parameters, List<Statement> body"),
                 entry("GroupingExpression", "Expression expression"),
                 entry("LogicalExpression", "Expression left, Token operator, Expression right"),
                 entry("LiteralExpression", "Object value"),

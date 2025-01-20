@@ -117,6 +117,11 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
     }
 
     @Override
+    public Object visit(Expression.FunctionExpression it) {
+        return new Callable.DefaultCallable(it.name(), it.parameters(), it.body(), environment);
+    }
+
+    @Override
     public Object visit(Expression.GroupingExpression it) {
         return evaluate(it.expression());
     }
@@ -166,7 +171,7 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
 
     @Override
     public Void visit(Statement.FunctionStatement it) {
-        var callable = new Callable.DefaultCallable(it, environment);
+        var callable = new Callable.DefaultCallable(it.name(), it.parameters(), it.body(), environment);
         environment.define(it.name().lexeme(), callable);
         return null;
     }

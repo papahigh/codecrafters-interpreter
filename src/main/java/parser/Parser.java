@@ -173,7 +173,29 @@ public class Parser {
     }
 
     private Expression expression() {
+        if (match(FUN)) return funExpression();
         return ternary();
+    }
+
+    private Expression funExpression() {
+        var name = (Token) null;
+        if (!check(LEFT_PAREN)) {
+            name = consume(IDENTIFIER, "Expect function name.");
+        }
+        consume(LEFT_PAREN, "Expect '(' after function.");
+        var parameters = new ArrayList<Token>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (parameters.size() >= 255) {
+                    error(peek(), "Can't have more than 255 parameters.");
+                }
+                parameters.add(consume(IDENTIFIER, "Expect parameter name."));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+        consume(LEFT_BRACE, "Expect '{' before function body.");
+        var body = blockStatement();
+        return new Expression.FunctionExpression(name, parameters, body);
     }
 
     private Expression ternary() {
