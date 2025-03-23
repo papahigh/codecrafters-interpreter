@@ -97,6 +97,11 @@ class Generate {
                                     public <R> R accept(Visitor<R> visitor) {
                                         return visitor.visit(this);
                                     }
+                                
+                                    @Override
+                                    public boolean equals(Object other) {
+                                        return this == other;
+                                    }
                                 }
                                 """
                                 .replace("$base", baseInterface)

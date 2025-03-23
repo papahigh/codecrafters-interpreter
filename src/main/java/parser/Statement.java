@@ -24,12 +24,22 @@ public sealed interface Statement {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
         }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
+        }
     }
 
     record ExpressionStatement(Expression expression) implements Statement {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
+        }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
         }
     }
 
@@ -38,12 +48,22 @@ public sealed interface Statement {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
         }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
+        }
     }
 
     record IfStatement(Expression condition, Statement thenBranch, Statement elseBranch) implements Statement {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
+        }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
         }
     }
 
@@ -52,12 +72,22 @@ public sealed interface Statement {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
         }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
+        }
     }
 
     record ReturnStatement(Token keyword, Expression value) implements Statement {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
+        }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
         }
     }
 
@@ -66,12 +96,22 @@ public sealed interface Statement {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
         }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
+        }
     }
 
     record WhileStatement(Expression condition, Statement body) implements Statement {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
+        }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
         }
     }
 }

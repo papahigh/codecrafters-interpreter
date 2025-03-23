@@ -26,12 +26,22 @@ public sealed interface Expression {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
         }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
+        }
     }
 
     record AssignExpression(Token name, Expression value) implements Expression {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
+        }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
         }
     }
 
@@ -40,12 +50,22 @@ public sealed interface Expression {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
         }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
+        }
     }
 
     record CallExpression(Expression callee, Token paren, List<Expression> arguments) implements Expression {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
+        }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
         }
     }
 
@@ -54,12 +74,22 @@ public sealed interface Expression {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
         }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
+        }
     }
 
     record GroupingExpression(Expression expression) implements Expression {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
+        }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
         }
     }
 
@@ -68,12 +98,22 @@ public sealed interface Expression {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
         }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
+        }
     }
 
     record LiteralExpression(Object value) implements Expression {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
+        }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
         }
     }
 
@@ -82,12 +122,22 @@ public sealed interface Expression {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
         }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
+        }
     }
 
     record VariableExpression(Token name) implements Expression {
         @Override
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visit(this);
+        }
+    
+        @Override
+        public boolean equals(Object other) {
+            return this == other;
         }
     }
 }
