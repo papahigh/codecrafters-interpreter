@@ -1,6 +1,7 @@
 import doctor.Doctor;
 import parser.ASTPrinter;
 import parser.Parser;
+import runtime.Resolver;
 import runtime.Runtime;
 import scanner.Scanner;
 
@@ -57,10 +58,14 @@ public class Main {
         var doctor = Doctor.console();
 
         var scanner = new Scanner(content, doctor);
-        var parser = new Parser(scanner.scanTokens(), doctor);
         var runtime = new Runtime(doctor);
+        var resolver = new Resolver(runtime, doctor);
 
-        runtime.run(parser.parseExpression());
+        var parser = new Parser(scanner.scanTokens(), doctor);
+        var expression = parser.parseExpression();
+
+        resolver.resolve(expression);
+        runtime.run(expression);
 
         doctor.diagnostics();
     }
@@ -69,10 +74,14 @@ public class Main {
         var doctor = Doctor.console();
 
         var scanner = new Scanner(content, doctor);
-        var parser = new Parser(scanner.scanTokens(), doctor);
         var runtime = new Runtime(doctor);
+        var resolver = new Resolver(runtime, doctor);
 
-        runtime.run(parser.parseStatements());
+        var parser = new Parser(scanner.scanTokens(), doctor);
+        var statements = parser.parseStatements();
+
+        resolver.resolve(statements);
+        runtime.run(statements);
 
         doctor.diagnostics();
     }

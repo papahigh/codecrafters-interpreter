@@ -46,4 +46,21 @@ class Environment {
 
         throw new RuntimeError(name, "Undefined variable '%s'".formatted(name.lexeme()));
     }
+
+    Object getAt(Integer distance, Token name) {
+        return ancestor(distance).get(name);
+    }
+
+    void assignAt(Integer distance, Token name, Object value) {
+        ancestor(distance).define(name, value);
+    }
+
+    private Environment ancestor(int distance) {
+        Environment env = this;
+        for (int i = 0; i < distance; i++) {
+            assert env != null;
+            env = env.parent;
+        }
+        return env;
+    }
 }

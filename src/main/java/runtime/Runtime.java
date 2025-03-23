@@ -8,13 +8,16 @@ import scanner.Token;
 import scanner.TokenType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
     final Environment globals = new Environment();
-    private Environment environment = new Environment(globals);
+    private Environment environment = globals;
+    private final Map<Expression, Integer> locals  = new HashMap<>();
     private final Doctor doctor;
 
     public Runtime(Doctor doctor) {
@@ -63,7 +66,12 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
     @Override
     public Object visit(Expression.AssignExpression it) {
         var value = evaluate(it.value());
-        environment.assign(it.name(), value);
+        var distance = locals.get(it);
+        if (distance != null) {
+            environment.assignAt(distance, it.name(), value);
+        } else {
+            globals.assign(it.name(), value);
+        }
         return value;
     }
 
@@ -154,7 +162,12 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
 
     @Override
     public Object visit(Expression.VariableExpression it) {
-        return environment.get(it.name());
+        var distance = locals.get(it);
+        if (distance != null) {
+            return environment.getAt(distance, it.name());
+        } else {
+            return globals.get(it.name());
+        }
     }
 
     @Override
@@ -229,6 +242,10 @@ public class Runtime implements Expression.Visitor<Object>, Statement.Visitor<Vo
         } finally {
             this.environment = previous;
         }
+    }
+
+    void resolve(Expression expression, int depth) {
+        locals.put(expression, depth);
     }
 
     private Object evaluate(Expression expression) {
